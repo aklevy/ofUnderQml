@@ -47,53 +47,40 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#include "ofUnderQml.h"
+#include <QGuiApplication>
+#include <QTimer>
 
-import QtQuick 2.0
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.3
-import OfUnderQML 1.0
+int main(int argc, char **argv)
+{
+    // setup GL context for OF
 
-Item {
-    objectName :"item"
-    width: 640
-    height: 640
+    ofSetupOpenGL(1280,720,OF_WINDOW);
+    ofInit();
 
-   OfQMLApp {
-        objectName: "ofUnderQml"
-        anchors.fill: parent
+    // setup Qt application
+    QGuiApplication app(argc, argv);
 
-        SequentialAnimation on scale {
-            NumberAnimation { to: 1; duration: 2500; easing.type: Easing.InQuad }
-            NumberAnimation { to: 0; duration: 2500; easing.type: Easing.OutQuad }
-            loops: Animation.Infinite
-            running: true
-        }
-    }
-    Button {
-        objectName: "changeColorButton";
-        x: 50; y: 40
-        height: 25; width: 150
-        text: "Change Color";
-    }
+    // register the qobject rendering of in the qml
+    qmlRegisterType<ofUnderQml>("OfUnderQML", 1, 0, "OfQMLApp");
 
-    Rectangle {
-        color: Qt.rgba(1, 1, 1, 0.7)
-        radius: 10
-        border.width: 1
-        border.color: "white"
-        anchors.fill: label
-        anchors.margins: -10
-    }
+    // init the view (which will display OF)
+    QQuickView view;
+    view.setResizeMode(QQuickView::SizeRootObjectToView);
+    // set the QML to be read
+    view.setSource(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    Text {
-        id: label
-        color: "black"
-        wrapMode: Text.WordWrap
-        text: "The background here is a squircle rendered with raw OpenGL using the 'beforeRender()' signal in QQuickWindow. This text label and its border is rendered using QML"
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.margins: 20
-    }
+    view.show();
+
+
+    // to be executed once the application is launched
+    // initialize the ofUnderQml class to connect buttons
+    // (because buttons are created after ofUnderQml)
+    QTimer::singleShot(0,[&]
+    {
+        auto c = view.rootObject()->findChild<ofUnderQml*>();
+        c->init(view);
+    } );
+    return app.exec();
 }
-//! [2]
+//! [1]

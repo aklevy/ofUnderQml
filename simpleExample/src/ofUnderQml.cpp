@@ -62,7 +62,7 @@ ofUnderQml::ofUnderQml()
     setAcceptedMouseButtons(Qt::AllButtons);
     setFlag(ItemAcceptsInputMethod, true);
     setFlag(ItemIsFocusScope, true);
-  /*  setFlag(ItemHasContents, true);
+    /*  setFlag(ItemHasContents, true);
     setFlag(ItemAcceptsDrops, true);*/
 
 }
@@ -71,14 +71,11 @@ ofUnderQml::ofUnderQml()
 
 void ofUnderQml::init(QQuickView& view)
 {
-    QObject* qmlButton = view.rootObject()->findChild<QObject*>("changeColorButton");
-    if(qmlButton)
-       connect(qmlButton, SIGNAL(pressed()), this, SLOT(changeColor()));
     if (!m_ofApp)
     {
         m_ofApp = new ofAppQml();
-     }
-    m_ofApp->setup();
+    }
+    m_ofApp->setup(view);
 
 }
 
@@ -99,6 +96,7 @@ void ofUnderQml::setScale(qreal sc)
 ofVec2f ofUnderQml:: GLCoordToPixCoord(QPoint pt)
 {
     ofVec2f size = ofVec2f(window()->size().width(),window()->size().height());
+    //   size *= window()->devicePixelRatio();
     return ofVec2f(pt.x()/size.x*2-1., 1. - pt.y()/size.y*2 );
 
 }
@@ -109,7 +107,7 @@ ofVec2f ofUnderQml:: GLCoordToPixCoord(QPoint pt)
 void ofUnderQml:: transformToPixCoord()
 {
     // rotate upside down
-    glRotatef(180,1,0,0);
+    glRotatef(-180,1,0,0);
 
     // translate to make the origin on the down left corner
     glTranslatef(-1,-1,0.);
@@ -132,7 +130,7 @@ void ofUnderQml::handleWindowChanged(QQuickWindow *win)
 
         // If we allow QML to do the clearing, they would clear what we paint
         // and nothing would show.
-          win->setClearBeforeRendering(false);
+        win->setClearBeforeRendering(false);
     }
 }
 
@@ -154,17 +152,14 @@ void ofUnderQml::sync()
     if (!m_ofApp)
     {
         m_ofApp = new ofAppQml();
-       // connect(window(), &QQuickWindow::beforeRendering, m_ofApp, &ofAppQml::draw, Qt::DirectConnection);
+        // connect(window(), &QQuickWindow::beforeRendering, m_ofApp, &ofAppQml::draw, Qt::DirectConnection);
     }
-   glUseProgram(0);
+    glUseProgram(0);
 
-   glPushMatrix();
-  transformToPixCoord();
-   // update ofApp
-   m_ofApp->update();
-   glPopMatrix();
+    // update ofApp
+    m_ofApp->update();
 
-   window()->resetOpenGLState();
+    window()->resetOpenGLState();
 
     m_ofApp->setScale(m_scale);
     m_ofApp->setWindow(window());
@@ -181,17 +176,17 @@ void ofUnderQml::render()
     {
 
         glUseProgram(0);
-      glPushMatrix();
-       transformToPixCoord();
+        glPushMatrix();
+        transformToPixCoord();
         // render ofApp
 
         m_ofApp->draw();
-       glPopMatrix();
+        glPopMatrix();
 
         // call this at the end of each draw()
         window()->resetOpenGLState();
 
-       m_ofApp->update();
+        m_ofApp->update();
 
     }
 }
@@ -224,9 +219,7 @@ void ofUnderQml::mousePressEvent(QMouseEvent *event)
 {
     if(event)
     {
-        setFocus(true);
-        qDebug() << event->pos();
-        ofVec2f posGLCoord = GLCoordToPixCoord(event->pos());
+        setFocus(true); //set focus to get key inputs
         m_ofApp->mousePressed(event->pos().x(),
                               event->pos().y(),event->button());
     }
@@ -238,7 +231,6 @@ void ofUnderQml::mouseMoveEvent(QMouseEvent *event)
 {
     if(event)
     {
-        ofVec2f posGLCoord = GLCoordToPixCoord(event->pos());
         m_ofApp->mouseDragged(event->pos().x(),
                               event->pos().y(),event->button());
     }
@@ -250,7 +242,6 @@ void ofUnderQml::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event)
     {
-
         m_ofApp->mouseReleased(event->pos().x(),
                                event->pos().y(),event->button());
     }
@@ -261,7 +252,6 @@ void ofUnderQml::hoverEnterEvent(QHoverEvent *event)
 {
     if(event)
     {
-        ofVec2f posGLCoord = GLCoordToPixCoord(event->pos());
         m_ofApp->mouseEntered(event->pos().x(),
                               event->pos().y());
     }
@@ -273,7 +263,6 @@ void ofUnderQml::hoverMoveEvent(QHoverEvent *event)
 {
     if(event)
     {
-        ofVec2f posGLCoord = GLCoordToPixCoord(event->pos());
         m_ofApp->mouseMoved(event->pos().x(),
                             event->pos().y());
     }
@@ -284,8 +273,6 @@ void ofUnderQml::hoverLeaveEvent(QHoverEvent *event)
 {
     if(event)
     {
-        ofVec2f posGLCoord = GLCoordToPixCoord(event->pos());
-
         m_ofApp->mouseExited(event->pos().x(),
                              event->pos().y());
     }

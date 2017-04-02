@@ -58,20 +58,14 @@
 class ofUnderQml : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
 
 public:
     ofUnderQml();
     void init(QQuickView& view);
 
-    qreal scale() const { return m_scale; }
-    void setScale(qreal sc);
-
-    ofVec2f GLCoordToPixCoord(QPoint pt);
     void transformToPixCoord();
 
 signals:
-    void scaleChanged();
 
 
 public slots:
@@ -81,11 +75,9 @@ public slots:
 
 private slots:
     void handleWindowChanged(QQuickWindow *win);
-    void changeColor(){
-        if(m_ofApp)
-            m_ofApp->changeColor();}
-    // QQuickItem interface
 
+
+    // QQuickItem interface
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
@@ -97,7 +89,6 @@ protected:
     void hoverLeaveEvent(QHoverEvent *event) override;
 
 private:
-    qreal m_scale;
     ofAppQml *m_ofApp{};
 
 

@@ -22,7 +22,7 @@ public:
     ofAppQml();
     ~ofAppQml();
 
-    void setup();
+    void setup(QQuickView& view);
 
     void setWindow(QQuickWindow *window) { m_window = window;}
     void setScale(float sc) { m_scale = sc; }
@@ -51,7 +51,9 @@ public slots:
 private:
     // app's general
     //QSize m_viewportSize;
-    QQuickWindow *m_window;
+    QQuickWindow *m_window{};
+    // fps counter (ofGetFrameRate() does not work here so a manual fps counter is required)
+    ofFpsCounter m_fps;
 
     // circle
     float m_scale;

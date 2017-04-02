@@ -54,7 +54,6 @@
 int main(int argc, char **argv)
 {
     // setup GL context for OF
-
     ofSetupOpenGL(640,640,OF_WINDOW);
     ofInit();
 
